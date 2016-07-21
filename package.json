@@ -5,9 +5,10 @@
   "main": "subscriber.js",
   "dependencies": {
     "amqp": "^0.2.6",
-    "amqplib": "^0.4.2",
-    "elasticsearch": "^11.0.1",
     "amqp-stats": "^0.0.14",
+    "amqplib": "^0.4.2",
+    "debug": "^2.2.0",
+    "elasticsearch": "^11.0.1",
     "util": "^0.10.3"
   },
   "devDependencies": {},

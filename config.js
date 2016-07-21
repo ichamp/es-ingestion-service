@@ -46,15 +46,16 @@ var config = {
 			URL: 'http://localhost:9200',
 			INDEX: 'catalog',
 			TYPE: 'refiner',
-			BULK_SIZE: 500,
-			NUM_SHARDS: 10
+			BULK_SIZE: 200,
+			NUM_SHARDS: 10,
+			BULK_CONCURRENCY: 20
 		},
 
 		RABBITMQ : {
         	CONNECT_STRING          : 'amqp://guest:guest@localhost:5672?heartbeat=60',
         	RETRY_INTERVAL          : 5000,     // milliseconds
-    		PREFETCH_COUNT			: 3000,
-    		QUEUE_NAME				: 'dump9',
+    		PREFETCH_COUNT			: 5000,
+    		QUEUE_NAME				: 'dump7',
     		EXCHANGE_NAME			: '',
     		EXCHANGE_KEY			: ''
     	}

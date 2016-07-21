@@ -12,8 +12,8 @@ ES_CLIENT = new ELASTICSEARCH.Client({
 
 console.log('ES_CLIENT created');
 
-function dumpESBulk(BULK_AR, cb) {
-  console.log('Reached dumpESBulk');
+function dumpESBulk(obj, BULK_AR, cb) {
+  //console.log('Reached dumpESBulk');
   var br = (JSON.parse(JSON.stringify(BULK_AR)));
   //console.log(br);
 
@@ -22,7 +22,7 @@ function dumpESBulk(BULK_AR, cb) {
     }).then(function(resp) {
 
         //console.log('DUMP DONE SID');
-        util.log('Dump done');
+        //util.log('Dump done');
         cb(null);
     },
     function(err) {
