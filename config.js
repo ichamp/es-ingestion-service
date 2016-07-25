@@ -43,19 +43,19 @@ var config = {
 
 	'development' : {
 		ELASTICSEARCH :{
-			URL: 'http://localhost:9200',
+			URL: 'localhost:9200',
 			INDEX: 'catalog',
 			TYPE: 'refiner',
-			BULK_SIZE: 200,
+			BULK_SIZE: 1000,
 			NUM_SHARDS: 10,
-			BULK_CONCURRENCY: 20
+			BULK_CONCURRENCY: 8
 		},
 
 		RABBITMQ : {
         	CONNECT_STRING          : 'amqp://guest:guest@localhost:5672?heartbeat=60',
         	RETRY_INTERVAL          : 5000,     // milliseconds
-    		PREFETCH_COUNT			: 5000,
-    		QUEUE_NAME				: 'dump7',
+    		PREFETCH_COUNT			: 10000,
+    		QUEUE_NAME				: 'dump1',
     		EXCHANGE_NAME			: '',
     		EXCHANGE_KEY			: ''
     	}

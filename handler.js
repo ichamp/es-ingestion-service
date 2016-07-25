@@ -10,6 +10,9 @@ function copy_array(arr){
 
 var PARALLELISM = 0;
 
+var STARTED_G = false;
+var STARTED_G_COUNTER = 0;
+
 var handler = {
 
 	syncAr: [],
@@ -65,11 +68,30 @@ var handler = {
 
 		self.cleanupBatch();
 		
+		while ((self.concurrency < self.max_concurrency) && QUEUE.length()) {
+				self.executeBulkThread();
+			}
+			
 		//self.executeBulkThread();
+		/*
+		++STARTED_G_COUNTER;
 
-		while ((self.concurrency < self.max_concurrency) &&  QUEUE.length()){
-			self.executeBulkThread();
+		//console.log('Sid counter is ' + STARTED_G_COUNTER);
+
+		if (!STARTED_G) {
+			if (STARTED_G_COUNTER === CONFIG.RABBITMQ.PREFETCH_COUNT / CONFIG.ELASTICSEARCH.BULK_SIZE) {
+				STARTED_G = true;
+				while ((self.concurrency < self.max_concurrency) && QUEUE.length()) {
+				self.executeBulkThread();
+			}
+			}
+		} else {
+			//if(STARTED_G_COUNTER === CONFIG.RABBITMQ.PREFETCH_COUNT/CONFIG.ELASTICSEARCH.BULK_SIZE)
+			while ((self.concurrency < self.max_concurrency) && QUEUE.length()) {
+				self.executeBulkThread();
+			}
 		}
+		*/
 	},
 
 	executeBulkThread: function(channel) {
@@ -112,7 +134,7 @@ var handler = {
 
 				console.log('PARALLELISM = ' + self.concurrency);
 				console.log('Queue length = ' + QUEUE.length());
-				
+
 				FN_DUMP_ES(data, bulkAr, function(err, res) {
 					if (err) {
 						//console.log('NACKING data of length' = data.length);

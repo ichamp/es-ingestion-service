@@ -1,15 +1,22 @@
+//replicate data across staging
+
 // Access the callback-based API
 var amqp = require('amqplib/callback_api');
 
 var CONFIG = require('./../config');
 //var HANDLER = require('./handler');
 
-CONFIG.RABBITMQ.QUEUE_NAME = "dump8";
+CONFIG.RABBITMQ.QUEUE_NAME = "dump9";
 CONFIG.RABBITMQ.PREFETCH_COUNT = 10000;
-console.log('printing config object from subscriber.js');
+
+var STAGING_RQ_CONNECTION_STRING = 'amqp://guest:guest@localhost:5673?heartbeat=60';
+
+console.log('printing config object replicate across staging');
 console.log(CONFIG);
 
-var amqpConn = null;
+var amqpConnLocal = null;
+
+var amqpConnStaging = null;
 
 function start() {
 	console.log('Hi sid');
@@ -28,8 +35,27 @@ function start() {
 			return setTimeout(start, 1000);
 		});
 		console.log("[AMQP] connected");
-		amqpConn = conn;
-		whenConnected();
+		amqpConnLocal = conn;
+
+		amqp.connect(STAGING_RQ_CONNECTION_STRING, function(err, conn) {
+			if (err) {
+				console.error("[AMQP]", err.message);
+				return setTimeout(start, 1000);
+			}
+			conn.on("error", function(err) {
+				if (err.message !== "Connection closing") {
+					console.error("[AMQP] conn error", err.message);
+				}
+			});
+			conn.on("close", function() {
+				console.error("[AMQP] reconnecting");
+				return setTimeout(start, 1000);
+			});
+			console.log("[AMQP] connected");
+			amqpConnStaging = conn;
+			whenConnected();
+		});
+
 	});
 }
 
@@ -45,7 +71,7 @@ var offlinePubQueue = [];
 // A worker that acks messages only if processed successfully
 function startWorker() {
 	console.log('SID started worker')
-	amqpConn.createChannel(function(err, ch) {
+	amqpConnLocal.createChannel(function(err, ch) {
 		if (closeOnErr(err)) return;
 		ch.on("error", function(err) {
 			console.error("[AMQP] channel error", err.message);
@@ -82,7 +108,7 @@ function startWorker() {
 			//publish("exchange_jobs", "key_jobs", new Buffer("work work work" + GCOUNT++));
 			//console.log('Sid reached process Msg');
 			
-			publish("ex_staging_catalog_refiner", "refiner", msg.content);
+			publish("trial_exchange", "trial_key", msg.content);
 			//publish("exchange_jobs", "key_jobs", msg.content);
 			ch.ack(msg);
 		}
@@ -121,7 +147,7 @@ function work(msg, cb) {
 function closeOnErr(err) {
 	if (!err) return false;
 	console.error("[AMQP] error", err);
-	amqpConn.close();
+	amqpConnLocal.close();
 	return true;
 }
 
@@ -133,7 +159,7 @@ var pubChannel = null;
 var offlinePubQueue = [];
 
 function startPublisher() {
-	amqpConn.createConfirmChannel(function(err, ch) {
+	amqpConnStaging.createConfirmChannel(function(err, ch) {
 		if (closeOnErr(err)) return;
 		ch.on("error", function(err) {
 			console.error("[AMQP] channel error", err.message);

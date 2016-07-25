@@ -5,7 +5,7 @@ var util = require('util');
 var ES_CLIENT;
 
 ES_CLIENT = new ELASTICSEARCH.Client({
-	host: 'localhost:9200', 
+	host: CONFIG.ELASTICSEARCH.URL 
 	//requestTimeout: '1m'
 		//log: 'trace'  //Disabled ES console logs (traces)
 });
@@ -14,7 +14,8 @@ console.log('ES_CLIENT created');
 
 function dumpESBulk(obj, BULK_AR, cb) {
   //console.log('Reached dumpESBulk');
-  var br = (JSON.parse(JSON.stringify(BULK_AR)));
+  //var br = (JSON.parse(JSON.stringify(BULK_AR)));
+  br=BULK_AR;
   //console.log(br);
 
   ES_CLIENT.bulk({
