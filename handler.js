@@ -3,6 +3,9 @@ var CONFIG = require('./config');
 var debug = require('debug')('handler');
 var QUEUE = require('./queue');
 
+var http = require('http');
+http.globalAgent.maxSockets = 50;
+
 function copy_array(arr){
 	var ar = [];
 	return JSON.parse(JSON.stringify(arr));
