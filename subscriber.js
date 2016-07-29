@@ -54,7 +54,7 @@ function startWorker() {
 
 		console.log('setting prefetch value SID');
 		ch.prefetch(CONFIG.RABBITMQ.PREFETCH_COUNT);
-		ch.assertQueue("CONFIG.RABBITMQ.QUEUE_NAME", {
+		ch.assertQueue(CONFIG.RABBITMQ.QUEUE_NAME, {
 			durable: true
 		}, function(err, _ok) {
 			if (closeOnErr(err)) return;
