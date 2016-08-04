@@ -10,7 +10,7 @@ console.log(CONFIG);
 var amqpConn = null;
 
 function start() {
-	console.log('Hi sid');
+	console.log('Starting the es-ingestion-service');
 	amqp.connect(CONFIG.RABBITMQ.CONNECT_STRING, function(err, conn) {
 		if (err) {
 			console.error("[AMQP]", err.message);
@@ -27,18 +27,9 @@ function start() {
 		});
 		console.log("[AMQP] connected");
 		amqpConn = conn;
-		whenConnected();
+		startWorker();
 	});
 }
-
-function whenConnected() {
-	//startPublisher();
-	startWorker();
-}
-
-
-var pubChannel = null;
-var offlinePubQueue = [];
 
 // A worker that acks messages only if processed successfully
 function startWorker() {
@@ -65,49 +56,10 @@ function startWorker() {
 		});
 
 		function processMsg(msg){
-			//console.log('Processing single message SID');
-			//console.log(msg.content.toString());
-			//console.log('GET IT PROCESSED FROM HANDLER');
-			//ch.ack(msg);
-			//console.log(JSON.stringify(ch));
-			//ch.ack(msg);
-
-			//var id = msg.content.toString();
-			//console.log(id);
-			//console.log('reached processMsg in subscriber.js');
 			HANDLER.processSingle(ch, msg);
 		}
-
-		/*
-		function processMsg(msg) {
-			work(msg, function(ok) {
-				console.log('REACHED CB OF WORK()');
-				try {
-					if (ok){
-						//console.log('ACKED MSG ' + msg.content.toString());
-						ch.ack(msg);
-						console.log('ACKED MSG ' + msg.content.toString());
-						console.log(JSON.stringify(msg));
-
-					}
-					else{
-						console.log('NACKED msg ' + msg.content.toString());
-						ch.reject(msg, true);
-					}
-				} catch (e) {
-					closeOnErr(e);
-				}
-			});
-		}*/
 	});
 }
-
-function work(msg, cb) {
-	console.log("PDF processing of ", msg.content.toString());
-	//cb(false);
-	cb(true);
-}
-
 
 function closeOnErr(err) {
 	if (!err) return false;

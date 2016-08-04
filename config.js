@@ -48,7 +48,8 @@ var config = {
 			TYPE: 'refiner',
 			BULK_SIZE: 1000,
 			NUM_SHARDS: 10,
-			BULK_CONCURRENCY: 8
+			BULK_CONCURRENCY: 8,
+			REQUEST_TIMEOUT: 60000	//milliseconds
 		},
 
 		RABBITMQ : {
@@ -70,9 +71,6 @@ var load = function(){
 	var
 		env 			= config.ENVIRONMENT,
 		loadedConfig 	= config.COMMON;
-
-	console.log('printing from config file directly');
-	console.log(JSON.stringify(config));
 
 	//copy superficially , and not deep copy
 	Object.keys(config[env]).forEach(function(key) {
