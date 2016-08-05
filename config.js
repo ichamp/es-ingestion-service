@@ -47,7 +47,7 @@ var config = {
 			INDEX: 'catalog',
 			TYPE: 'refiner',
 			BULK_SIZE: 1000,
-			BULK_SIZE_MB: 0.1,
+			BULK_SIZE_MB: 10,
 			NUM_SHARDS: 10,
 			BULK_CONCURRENCY: 8,
 			REQUEST_TIMEOUT: 60000	//milliseconds

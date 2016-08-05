@@ -143,6 +143,7 @@ var handler = {
 		handler.syncAr.splice(0,handler.syncAr.length);
 		handler.counter = 0;
 		handler.byteSize = 0;
+
 	}
 };
 
