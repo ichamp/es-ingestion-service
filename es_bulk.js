@@ -4,7 +4,7 @@ var	CONFIG = require('./config.js');
 var ES_CLIENT;
 
 var ES_CLIENT = new ELASTICSEARCH.Client({
-	host: CONFIG.ELASTICSEARCH.URL 
+	host: CONFIG.ELASTICSEARCH.URL, 
 	requestTimeout: CONFIG.ELASTICSEARCH.REQUEST_TIMEOUT 
 		//log: 'trace'  //Disabled ES console logs (traces)
 });

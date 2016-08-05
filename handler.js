@@ -1,9 +1,12 @@
+var http = require('http');
+var util = require('util');
+var debug = require('debug')('handler');
+
 var FN_DUMP_ES = require('./es_bulk');
 var CONFIG = require('./config');
-var debug = require('debug')('handler');
 var QUEUE = require('./queue');
 
-var http = require('http');
+
 http.globalAgent.maxSockets = 50;
 
 function copy_array(arr){
@@ -70,7 +73,7 @@ var handler = {
 			try {
 				data = JSON.parse(data);
 			} catch (err) {
-				console.log('Error in parsing json from string');
+				util.log('Error in parsing json from string');
 				console.log(err);
 			}
 			
@@ -88,19 +91,19 @@ var handler = {
 
 				self.concurrency++;
 
-				console.log('PARALLELISM = ' + self.concurrency);
-				console.log('Queue length = ' + QUEUE.length());
+				util.log('PARALLELISM = ' + self.concurrency);
+				util.log('Queue length = ' + QUEUE.length());
 
 				FN_DUMP_ES(data, bulkAr, function(err, res) {
 					if (err) {
-						console.log(err.message);
-						debug.log('NACKING data of length => ' + data.length);
+						util.log(err.message);
+						util.log('NACKING data of length => ' + data.length);
 						for (var i = 0; i < data.length; i++) {
 							self.channel.reject(data[i], true);
 						}
 
 						self.concurrency--;
-						console.log('PARALLELISM DECREASED = ' + self.concurrency);
+						util.log('PARALLELISM DECREASED = ' + self.concurrency);
 						//self.executeBulkThread();
 
 					} else {
@@ -110,7 +113,7 @@ var handler = {
 						}
 
 						self.concurrency--;
-						console.log('PARALLELISM DECREASED = ' + self.concurrency);
+						util.log('PARALLELISM DECREASED = ' + self.concurrency);
 					}
 				});
 			}
