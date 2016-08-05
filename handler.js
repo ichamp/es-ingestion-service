@@ -21,6 +21,8 @@ var handler = {
 	syncAr: [],
 	counter: 0,
 
+	byteSize: 0,
+
 	concurrency: 0,
 
 	max_concurrency: CONFIG.ELASTICSEARCH.BULK_CONCURRENCY,
@@ -42,8 +44,15 @@ var handler = {
 
 		self.syncAr[self.counter] = data;
 		self.counter++;
+		self.byteSize += data.content.length;
+		debug('byteSize = ' + self.byteSize);
 
-		if (self.counter == CONFIG.ELASTICSEARCH.BULK_SIZE) {
+		if (CONFIG.FLAGS.BULK_DECISION == 'LENGTH' && self.counter == CONFIG.ELASTICSEARCH.BULK_SIZE) {
+			debug('Adding bulk thread by LENGTH clause');
+			self.addThreadRequest();
+
+		} else if (CONFIG.FLAGS.BULK_DECISION == 'MEMORY' && (self.byteSize >= CONFIG.ELASTICSEARCH.BULK_SIZE_MB * 1000000) ) {
+			debug('Adding bulk thread by MEMORY clause');
 			self.addThreadRequest();
 		}
 	},
@@ -125,7 +134,8 @@ var handler = {
 		var self = this;
 
 		self.syncAr.splice(0,self.syncAr.length);
-		self.counter=0;
+		self.counter = 0;
+		self.byteSize = 0;
 	}
 };
 

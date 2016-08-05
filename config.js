@@ -47,6 +47,7 @@ var config = {
 			INDEX: 'catalog',
 			TYPE: 'refiner',
 			BULK_SIZE: 1000,
+			BULK_SIZE_MB: 10,
 			NUM_SHARDS: 10,
 			BULK_CONCURRENCY: 8,
 			REQUEST_TIMEOUT: 60000	//milliseconds
@@ -59,6 +60,10 @@ var config = {
     		QUEUE_NAME				: 'dump1',
     		EXCHANGE_NAME			: '',
     		EXCHANGE_KEY			: ''
+    	},
+
+    	FLAGS:{
+    		BULK_DECISION: 'MEMORY'//'LENGTH' or 'MEMORY' supported, length uses ELASTICSEARCH.BULK_SIZE, memory used BULK_SIZE_MB
     	}
 	}
 
