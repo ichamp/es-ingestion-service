@@ -31,51 +31,58 @@ var handler = {
 
 	channelSet : false,
 
+	timeoutTimer : 0,
+
+	timeoutConfigTime: 10000,
+
 	processSingle: function(channel, data) {
 		debug('entered processSingle');
-		var self = this;
+		//var handler = this;
 
-		if(self.channelSet === false){
-			self.channelSet = true;
-			self.channel = channel;
+		if(handler.channelSet === false){
+			handler.channelSet = true;
+			handler.channel = channel;
 		}
 
 		data.content = data.content.toString();
 
-		self.syncAr[self.counter] = data;
-		self.counter++;
-		self.byteSize += data.content.length;
-		debug('byteSize = ' + self.byteSize);
+		handler.syncAr[handler.counter] = data;
+		handler.counter++;
+		handler.byteSize += data.content.length;
+		debug('byteSize = ' + handler.byteSize);
 
-		if (CONFIG.FLAGS.BULK_DECISION == 'LENGTH' && self.counter == CONFIG.ELASTICSEARCH.BULK_SIZE) {
+		if (CONFIG.FLAGS.BULK_DECISION == 'LENGTH' && handler.counter == CONFIG.ELASTICSEARCH.BULK_SIZE) {
 			debug('Adding bulk thread by LENGTH clause');
-			self.addThreadRequest();
+			handler.addThreadRequest();
 
-		} else if (CONFIG.FLAGS.BULK_DECISION == 'MEMORY' && (self.byteSize >= CONFIG.ELASTICSEARCH.BULK_SIZE_MB * 1000000) ) {
+		} else if (CONFIG.FLAGS.BULK_DECISION == 'MEMORY' && (handler.byteSize >= CONFIG.ELASTICSEARCH.BULK_SIZE_MB * 1000000) ) {
 			debug('Adding bulk thread by MEMORY clause');
-			self.addThreadRequest();
+			handler.addThreadRequest();
 		}
+
+		clearTimeout(handler.timeoutTimer);
+		handler.timeoutTimer = setTimeout(handler.addThreadRequest, handler.timeoutConfigTime);
+
 	},
 
 	addThreadRequest: function() {
 		debug('entered addThreadRequest');
-		var self = this;
-
+		//var handler = this;
 		debug('below is the data send for enqueuing');
-		debug(JSON.stringify(self.syncAr));
+		debug(JSON.stringify(handler.syncAr));
 
-		QUEUE.enqueue(JSON.stringify(self.syncAr));
+		QUEUE.enqueue(JSON.stringify(handler.syncAr));
 
-		self.cleanupBatch();
+		handler.cleanupBatch();
 
-		while ((self.concurrency < self.max_concurrency) && QUEUE.length()) {
-			self.executeBulkThread();
+		while ((handler.concurrency < handler.max_concurrency) && QUEUE.length()) {
+			handler.executeBulkThread();
 		}
 	},
 
 	executeBulkThread: function(channel) {
 		debug('entered executeBulkThread');
-		var self = this;
+		//var handler = this;
 
 			var data = QUEUE.dequeue();
 
@@ -98,9 +105,9 @@ var handler = {
 					singleData.content = buf;
 				});
 
-				self.concurrency++;
+				handler.concurrency++;
 
-				util.log('PARALLELISM = ' + self.concurrency);
+				util.log('PARALLELISM = ' + handler.concurrency);
 				util.log('Queue length = ' + QUEUE.length());
 
 				FN_DUMP_ES(data, bulkAr, function(err, res) {
@@ -108,21 +115,21 @@ var handler = {
 						util.log(err.message);
 						util.log('NACKING data of length => ' + data.length);
 						for (var i = 0; i < data.length; i++) {
-							self.channel.reject(data[i], true);
+							handler.channel.reject(data[i], true);
 						}
 
-						self.concurrency--;
-						util.log('PARALLELISM DECREASED = ' + self.concurrency);
-						//self.executeBulkThread();
+						handler.concurrency--;
+						util.log('PARALLELISM DECREASED = ' + handler.concurrency);
+						//handler.executeBulkThread();
 
 					} else {
 						util.log('ACKING data of length => ' + data.length);
 						for (var i = 0; i < data.length; i++) {
-							self.channel.ack(data[i]);
+							handler.channel.ack(data[i]);
 						}
 
-						self.concurrency--;
-						util.log('PARALLELISM DECREASED = ' + self.concurrency);
+						handler.concurrency--;
+						util.log('PARALLELISM DECREASED = ' + handler.concurrency);
 					}
 				});
 			}
@@ -131,11 +138,11 @@ var handler = {
 
 	cleanupBatch: function(){
 		debug('entered cleanupBatch');
-		var self = this;
+		//var handler = this;
 
-		self.syncAr.splice(0,self.syncAr.length);
-		self.counter = 0;
-		self.byteSize = 0;
+		handler.syncAr.splice(0,handler.syncAr.length);
+		handler.counter = 0;
+		handler.byteSize = 0;
 	}
 };
 

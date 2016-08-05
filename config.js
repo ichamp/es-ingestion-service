@@ -47,7 +47,7 @@ var config = {
 			INDEX: 'catalog',
 			TYPE: 'refiner',
 			BULK_SIZE: 1000,
-			BULK_SIZE_MB: 10,
+			BULK_SIZE_MB: 0.1,
 			NUM_SHARDS: 10,
 			BULK_CONCURRENCY: 8,
 			REQUEST_TIMEOUT: 60000	//milliseconds
@@ -56,8 +56,8 @@ var config = {
 		RABBITMQ : {
         	CONNECT_STRING          : 'amqp://guest:guest@localhost:5672?heartbeat=60',
         	RETRY_INTERVAL          : 5000,     // milliseconds
-    		PREFETCH_COUNT			: 10000,
-    		QUEUE_NAME				: 'dump1',
+    		PREFETCH_COUNT			: 100,
+    		QUEUE_NAME				: 'dump10',
     		EXCHANGE_NAME			: '',
     		EXCHANGE_KEY			: ''
     	},
