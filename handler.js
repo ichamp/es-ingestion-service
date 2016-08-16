@@ -2,10 +2,24 @@ var http = require('http');
 var util = require('util');
 var debug = require('debug')('handler');
 
-var FN_DUMP_ES = require('./es_bulk');
+var ES_CONNECT = require('./lib/es_ops').connectMultiIndex;
+//var ES_CONNECT = require('./lib/es_ops').connect;
+
+//dumpESBulk: function(client, bulkAr, cb) {
+//var FN_DUMP_ES = require('./es_bulk');
+//function dumpESBulk(obj, BULK_AR, cb) 
+
 var CONFIG = require('./config');
 var QUEUE = require('./queue');
 
+var FN_DUMP_ES = require('./lib/es_ops').dumpESBulkMultiIndex;
+//dumpESBulkMultiIndex: function(configAr, obj, bulkAr, cb) {
+
+// var FN_DUMP_ES;
+// if (CONFIG.FLAGS.MULTI_INDEX_SUPPORT)
+// 	FN_DUMP_ES = require('./lib/es_ops').dumpESBulkMultiIndex;
+// else
+// 	FN_DUMP_ES = require('./lib/es_ops').dumpESBulk;
 
 http.globalAgent.maxSockets = 50;
 
@@ -31,6 +45,8 @@ var handler = {
 
 	channelSet : false,
 
+	esClient: null,
+
 	timeoutTimer : 0,
 
 	timeoutConfigTime: 10000,
@@ -42,6 +58,12 @@ var handler = {
 		if(handler.channelSet === false){
 			handler.channelSet = true;
 			handler.channel = channel;
+
+			handler.esClient = ES_CONNECT(CONFIG.INFRA);
+
+			// if (CONFIG.FLAGS.MULTI_INDEX_SUPPORT){
+			// 	handler.esClient 
+			// }
 		}
 
 		data.content = data.content.toString();
@@ -110,7 +132,8 @@ var handler = {
 				util.log('PARALLELISM = ' + handler.concurrency);
 				util.log('Queue length = ' + QUEUE.length());
 
-				FN_DUMP_ES(data, bulkAr, function(err, res) {
+				//FN_DUMP_ES(handler.esClient, data, bulkAr, function(err, res) {
+				FN_DUMP_ES(CONFIG.INFRA, data, bulkAr, function(err, res) {
 					if (err) {
 						util.log(err.message);
 						util.log('NACKING data of length => ' + data.length);

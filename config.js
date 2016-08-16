@@ -46,7 +46,7 @@ var config = {
 			URL: 'localhost:9200',
 			INDEX: 'catalog',
 			TYPE: 'refiner',
-			BULK_SIZE: 1000,
+			BULK_SIZE: 2,
 			BULK_SIZE_MB: 10,
 			NUM_SHARDS: 10,
 			BULK_CONCURRENCY: 8,
@@ -63,8 +63,38 @@ var config = {
     	},
 
     	FLAGS:{
-    		BULK_DECISION: 'MEMORY'//'LENGTH' or 'MEMORY' supported, length uses ELASTICSEARCH.BULK_SIZE, memory used BULK_SIZE_MB
-    	}
+    		BULK_DECISION: 'LENGTH',//'LENGTH' or 'MEMORY' supported, length uses ELASTICSEARCH.BULK_SIZE, memory used BULK_SIZE_MB
+    		MULTI_INDEX_SUPPORT : true //set this flag to true or false. if true it will pick only the config. If set to false, it will fetch settings from DB
+    	},
+
+		INFRA: [{
+			host: 'localhost:9200',
+			log: false,
+			requestTimeout: 120000, //120ms
+			index: 'catalog',
+			type: 'refiner',
+			client: ''
+		}, {
+			host: 'localhost:9200',
+			log: false,
+			requestTimeout: 120000, //120ms
+			index: 'catalog222',
+			type: 'refiner',
+			client: ''
+		}]
+
+    	/*
+  Below is one of the config from config array
+  var config = {
+    host: 'localhost:9200',
+    log: false,
+    requestTimeout: 120000,//120ms
+    index: 'catalog',
+    type: 'refiner',
+    client: ''
+  }
+*/
+
 	}
 
 };
